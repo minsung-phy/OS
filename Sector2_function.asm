@@ -14,7 +14,7 @@ START:
 	mov ss, bx
 	lea esp, [START]
 
-	mov edi,0
+	mov edi, 0
 	mov esi, msg
 	call printf
 

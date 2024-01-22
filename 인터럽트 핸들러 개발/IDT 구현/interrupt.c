@@ -4,6 +4,9 @@
 struct IDT inttable[3]; // ignore, timer, keyboard
 struct IDTR idtr = {256 * 8 - 1, 0};
 
+unsigned char keyt[2] = {'A', 0};
+unsigned char key[2] = {'A', 0};
+
 void init_intdesc() 
 {
 	int i, j;
@@ -68,8 +71,96 @@ void init_intdesc()
 	return;
 }
 
-void idt_ignore() {}
-void idt_timer() {}
-void idt_keyboard() {}
+void idt_ignore() 
+{
+	__asm__ __volatile__
+	(
+		"push gs;"
+		"push fs;"
+		"push es;"
+		"push ds;"
+		"pushad;"
+		"pushfd;"
+		"mov al, 0x20;"
+		"out 0x20, al;"
+	);
 
+	kprintf("idt_ignore", 5, 40);
+
+	__asm__ __volatile__
+	(
+		"popfd;"
+		"popad;"
+		"pop ds;"
+		"pop es;"
+		"pop fs;"
+		"pop gs;"
+		"leave;"
+		"nop;"
+		"iretd;"
+	);
+}
+
+void idt_timer()
+{
+	__asm__ __volatile__
+	(
+		"push gs;"
+		"push fs;"
+		"push es;"
+		"push ds;"
+		"pushad;"
+		"pushfd;"
+		"mov al, 0x20;"
+		"out 0x20, al;"		
+	);
+
+	kprintf(keyt, 7, 40);
+	keyt[0]++;
+
+	__asm__ __volatile__
+	(
+		"popfd;"
+		"popad;"
+		"pop ds;"
+		"pop es;"
+		"pop fs;"
+		"pop gs;"
+		"leave;"
+		"nop;"
+		"iretd;"
+	);
+}
+
+void idt_keyboard()
+{
+	__asm__ __volatile__
+	(
+		"push gs;"
+		"push fs;"
+		"push es;"
+		"push ds;"
+		"pushad;"
+		"pushfd;"
+		"in al, 0x60;"
+		"mov al, 0x20;"
+		"out 0x20, al;"
+	);
+
+	kprintf(key, 8, 40);
+	key[0]++;
+
+	__asm__ __volatile__
+	(
+		"popfd;"
+		"popad;"
+		"pop ds;"
+		"pop es;"
+		"pop fs;"
+		"pop gs;"
+		"leave;"
+		"nop;"
+		"iretd;"
+	);
+}
 

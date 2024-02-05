@@ -1,24 +1,26 @@
 #include "interrupt.h"
 #include "function.h"
 
-struct IDT inttable[3]; // ignore, timer, keyboard
-struct IDTR idtr = {256 * 8 - 1, 0};
+struct IDT inttable[3];
+struct IDTR idtr = { 256 * 8 - 1,0 };
 
-unsigned char keyt[2] = {'A', 0};
-unsigned char key[2] = {'A', 0};
+unsigned char keyt[2] = { 'A', 0 };
+unsigned char key[2] = { 'A', 0 };
 
-void init_intdesc() 
+void init_intdesc()
 {
-	int i, j;
+
+	int i,j;
 	unsigned int ptr;
 	unsigned short *isr;
 
-	{ // 0x00 : isr_ignore
+	{  // 0x00 : isr_ignore
 		ptr = (unsigned int)idt_ignore;
 		inttable[0].selector = (unsigned short)0x08;
 		inttable[0].type = (unsigned short)0x8E00;
 		inttable[0].offsetl = (unsigned short)(ptr & 0xFFFF);
 		inttable[0].offseth = (unsigned short)(ptr >> 16);
+
 	}
 
 	{  // 0x01 : isr_timer
@@ -27,6 +29,7 @@ void init_intdesc()
 		inttable[1].type = (unsigned short)0x8E00;
 		inttable[1].offsetl = (unsigned short)(ptr & 0xFFFF);
 		inttable[1].offseth = (unsigned short)(ptr >> 16);
+
 	}
 
 	{  // 0x02 : isr_keyboard
@@ -35,7 +38,10 @@ void init_intdesc()
 		inttable[2].type = (unsigned short)0x8E00;
 		inttable[2].offsetl = (unsigned short)(ptr & 0xFFFF);
 		inttable[2].offseth = (unsigned short)(ptr >> 16);
+
 	}
+
+	// 물리주소 0x0 번지에 ISR 배치 시작
 
 	for (i = 0; i < 256; i++)
 	{
@@ -44,8 +50,10 @@ void init_intdesc()
 		*(isr + 1) = inttable[0].selector;
 		*(isr + 2) = inttable[0].type;
 		*(isr + 3) = inttable[0].offseth;
+
 	}
 
+	// 타이머 ISR 등록
 	{
 		isr = (unsigned short*)(0x0 + 8 * 0x20);
 		*isr = inttable[1].offsetl;
@@ -54,25 +62,33 @@ void init_intdesc()
 		*(isr + 3) = inttable[1].offseth;
 	}
 
+	// 키보드 ISR 등록
+
 	{
 		isr = (unsigned short*)(0x0 + 8 * 0x21);
 		*isr = inttable[2].offsetl;
 		*(isr + 1) = inttable[2].selector;
 		*(isr + 2) = inttable[2].type;
 		*(isr + 3) = inttable[2].offseth;
+	
 	}
+
+	//  인터럽트 작동 시작
 
 	__asm__ __volatile__("mov eax, %0"::"r"(&idtr));
 	__asm__ __volatile__("lidt [eax]");
-	__asm__ __volatile__("mov al, 0xFC");
-	__asm__ __volatile__("out 0x21, al");
+	__asm__ __volatile__("mov al,0xFC");
+	__asm__ __volatile__("out 0x21,al");
 	__asm__ __volatile__("sti");
 
 	return;
+
+
 }
 
-void idt_ignore() 
+void idt_ignore()
 {
+
 	__asm__ __volatile__
 	(
 		"push gs;"
@@ -84,9 +100,20 @@ void idt_ignore()
 		"mov al, 0x20;"
 		"out 0x20, al;"
 	);
+	
+	 // 화면의 가로 길이를 80으로 가정합니다.
+    int line = 5;
+    int col = 40;
 
-	kprintf("idt_ignore", 5, 40);
+    // 좌표를 선형 주소로 변환합니다.
+    char *video = (char*)(0xB8000 + 2 * (line * 80 + col));
 
+    // 문자열을 출력합니다.
+    for (int i = 0; "idt_ignore"[i] != 0; i++) {
+        *video++ = "idt_ignore"[i];
+        *video++ = 0x03; // 문자 색상으로 0x03을 사용한다고 가정합니다.
+    }
+	
 	__asm__ __volatile__
 	(
 		"popfd;"
@@ -99,10 +126,13 @@ void idt_ignore()
 		"nop;"
 		"iretd;"
 	);
+	
+	
 }
 
 void idt_timer()
 {
+
 	__asm__ __volatile__
 	(
 		"push gs;"
@@ -112,7 +142,8 @@ void idt_timer()
 		"pushad;"
 		"pushfd;"
 		"mov al, 0x20;"
-		"out 0x20, al;"		
+		"out 0x20, al;"
+		
 	);
 
 	kprintf(keyt, 7, 40);
@@ -130,10 +161,13 @@ void idt_timer()
 		"nop;"
 		"iretd;"
 	);
+
+
 }
 
 void idt_keyboard()
 {
+
 	__asm__ __volatile__
 	(
 		"push gs;"
@@ -162,5 +196,5 @@ void idt_keyboard()
 		"nop;"
 		"iretd;"
 	);
-}
 
+}

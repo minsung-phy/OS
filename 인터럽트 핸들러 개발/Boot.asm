@@ -23,7 +23,7 @@ read:
 	
 	jc read ; 에러나면 다시
 
-	mov dx, 0x3F2 ; 플로피디스크 드라이브의
+	mov dx, 0x3F2 ;플로피디스크 드라이브의
 	xor al, al	; 모터를 끈다
 	out dx, al 
 	
@@ -31,24 +31,24 @@ read:
 
 	; 인터럽트 코드 시작
 
-	mov al, 0x11	; pic 초기화
-	out 0x20, al	; 마스터 PIC
-	dw 0x00eb, 0x00eb	; jmp $+2, jmp $+2
-	out 0xA0, al	; 슬레이브 PIC
+	mov al, 0x11	;pic 초기화
+	out 0x20, al	;마스터 PIC
+	dw 0x00eb, 0x00eb	;jmp $+2, jmp $+2
+	out 0xA0, al	;슬레이브 PIC
 	dw 0x00eb, 0x00eb
 	
-	mov al, 0x20    ; 마스터 PIC  인터럽트 시작점
+	mov al, 0x20;마스터 PIC  인터럽트 시작점
 	out 0x21, al
 	dw 0x00eb, 0x00eb
 	mov al, 0x28
 	out 0xA1, al
 	dw 0x00eb, 0x00eb
 	
-	mov al, 0x04	; 마스터 PIC의 IRQ 2번에
-	out 0x21, al	; 슬레이브 PIC이 연결되어 있다.
+	mov al, 0x04	;마스터 PIC의 IRQ 2번에
+	out 0x21, al	;슬레이브 PIC이 연결되어 있다.
 	dw 0x00eb, 0x00eb
-	mov al, 0x02	; 슬레이브 PIC이 마스터 PIC이
-	out 0xA1, al	; IRQ 2번에 연결되어 있다.
+	mov al, 0x02	;슬레이브 PIC이 마스터 PIC이
+	out 0xA1, al	;IRQ 2번에 연결되어 있다.
 	dw 0x00eb, 0x00eb
 	
 	mov al, 0x01	; 8086모드를 사용한다.
@@ -57,11 +57,11 @@ read:
 	out 0xA1, al
 	dw 0x00eb, 0x00eb
 	
-	mov al, 0xFF	; 슬레이브 PIC의 모든 인터럽트를
-	out 0xA1, al 	; 막아둔다.
+	mov al, 0xFF	;슬레이브 PIC의 모든 인터럽트를
+	out 0xA1, al 	;막아둔다.
 	dw 0x00eb, 0x00eb
-	mov al, 0xFB	; 마스터 PIC의 IRQ 2번을 제외한
-	out 0x21, al	; 모든 인터럽터를 막아둔다.
+	mov al, 0xFB	;마스터 PIC의 IRQ 2번을 제외한
+	out 0x21, al	;모든 인터럽터를 막아둔다.
 
 	; 인터럽트 코드 끝
 
@@ -84,11 +84,13 @@ mov ss, bx
 
 jmp dword CodeSegment:0x10000
 
-gdtr:
-    dw gdt_end - gdt - 1
-    dd gdt+0x7C00
 
-gdt: 
+gdtr:
+dw gdt_end - gdt - 1
+dd gdt+0x7C00
+
+gdt:
+
 	dd 0,0 
 	CodeSegment equ 0x08
 	dd 0x0000FFFF, 0x00CF9A00 
@@ -101,3 +103,4 @@ gdt_end:
 
 times 510-($-$$) db 0
 dw 0xAA55
+

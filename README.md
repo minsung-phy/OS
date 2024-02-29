@@ -29,4 +29,5 @@ Simple CLI-based OS development project
 - Dynamic Memory Management
 
 ## Usage
+- The final program (MinsungOS) is located in the MinsungOS folder.
 - `make run`

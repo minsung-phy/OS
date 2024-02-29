@@ -1,4 +1,4 @@
-# Minsung OS
+# MinsungOS
 Simple CLI-based OS development project
 
 ## Development timeframe

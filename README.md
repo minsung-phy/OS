@@ -5,7 +5,7 @@ Simple CLI-based OS development project
 - 12.26.2023 ~ 02.29.2024
 
 ## Setup
-- 'C'
+- `C`
 - 'Linux (Ubuntu 22.04.3 LTS)'
 - **Install Assembler and Emulator**
   '''
